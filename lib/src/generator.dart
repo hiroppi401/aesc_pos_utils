@@ -12,7 +12,6 @@ import 'package:hex/hex.dart';
 import 'package:image/image.dart';
 import 'package:gbk_codec/gbk_codec.dart';
 import 'package:esc_pos_utils/esc_pos_utils.dart';
-import 'enums.dart';
 import 'commands.dart';
 
 class Generator {
@@ -581,7 +580,12 @@ class Generator {
     flip(image, direction: FlipDirection.horizontal);
     final Image imageRotated = copyRotate(image, angle: 270);
 
-    const int lineHeight = highDensityVertical ? 3 : 1;
+    int lHeight = 1;
+    if (highDensityVertical) {
+      lHeight = 3;
+    }
+
+    int lineHeight = lHeight;
     final List<List<int>> blobs = _toColumnFormat(imageRotated, lineHeight * 8);
 
     // Compress according to line density
@@ -593,8 +597,16 @@ class Generator {
     }
 
     final int heightPx = imageRotated.height;
-    const int densityByte =
-        (highDensityHorizontal ? 1 : 0) + (highDensityVertical ? 32 : 0);
+    int hDHorizontal = 1;
+    int hDVertical = 0;
+    if (highDensityHorizontal) {
+      hDHorizontal = 1;
+    }
+
+    if (highDensityVertical) {
+      hDVertical = 32;
+    }
+    int densityByte = hDHorizontal + hDVertical;
 
     final List<int> header = List.from(cBitImg.codeUnits);
     header.add(densityByte);
